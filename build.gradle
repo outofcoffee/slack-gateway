@@ -1,0 +1,37 @@
+allprojects {
+    version = '0.1.0-SNAPSHOT'
+    group = 'com.gatehill.slackbootstrap'
+
+    buildscript {
+        ext {
+            version_kotlin = '1.1.51'
+            version_log4j = '2.5'
+            version_jackson = '2.9.0'
+            version_guava = '18.0'
+            version_guice = '4.1.0'
+            version_tyrus = '1.8.3'
+
+            // testing
+            version_junit_platform_gradle = '1.0.0'
+            version_spek = '1.1.5'
+            version_kluent = '1.22'
+            version_mockito_kotlin = '1.5.0'
+        }
+        repositories {
+            mavenCentral()
+        }
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url 'http://dl.bintray.com/jetbrains/spek' }
+    }
+
+    apply plugin: "maven-publish"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "4.2.1"
+}

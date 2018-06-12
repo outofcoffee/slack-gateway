@@ -1,0 +1,25 @@
+buildscript {
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.amshove.kluent:kluent:$version_kluent"
+    compile "org.jetbrains.spek:spek-api:$version_spek"
+    compile "org.jetbrains.spek:spek-junit-platform-engine:$version_spek"
+    compile "org.junit.platform:junit-platform-launcher:$version_junit_platform_gradle"
+    compile "com.nhaarman:mockito-kotlin-kt1.1:$version_mockito_kotlin"
+
+    // basic logging
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-core:$version_log4j"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}

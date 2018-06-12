@@ -1,0 +1,16 @@
+rootProject.name = 'slack-bootstrap'
+
+include ':backends:slack'
+project(':backends:slack').name = 'backends-slack'
+
+include ':distro'
+project(':distro').name = 'distro'
+
+include ':core'
+project(':core').name = 'core'
+
+include ':frontend'
+project(':frontend').name = 'frontend'
+
+include ':test:core'
+project(':test:core').name = 'test-core'

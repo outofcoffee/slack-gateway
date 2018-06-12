@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  slack-bootstrap:
+    image: outofcoffee/slack-bootstrap
+    build: ./distro
+    ports:
+      - "8080:8080"
+    environment:
+      SLACK_USER_TOKEN: "CHANGEME"
+      SLACK_CHANNEL_MEMBERS: "jsmith,mjones"

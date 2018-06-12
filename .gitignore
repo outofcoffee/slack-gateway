@@ -1,0 +1,10 @@
+.idea/
+.vertx/
+build/
+*.iml
+.gradle/
+classes
+.gradletasknamecache
+gradle.properties
+target
+out/

@@ -1,0 +1,24 @@
+buildscript {
+    ext {
+        version_vertx = '3.4.2'
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+
+    compile project(':core')
+
+    compile "io.vertx:vertx-web:$version_vertx"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
