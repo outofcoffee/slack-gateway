@@ -5,7 +5,7 @@
 Runs as a server, and upon receipt of a message:
 
 * creates the given Slack channel if it doesn't exist
-* invites a list of users (or user groups) to the channel
+* ensures a list of users (or user groups) are in the channel (if not - invites them)
 * posts the message to the channel
 
 This removes the complexity of orchestrating many Slack API calls behind a simple endpoint.
