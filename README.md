@@ -2,9 +2,13 @@
 
 ## What can it do?
 
-* Create a Slack channel if it doesn't exist
-* Invite a list of users to the channel
-* Post a given message to the channel
+Runs as a server, and upon receipt of a message:
+
+* creates the given Slack channel if it doesn't exist
+* invites a list of users (or user groups) to the channel
+* posts the message to the channel
+
+This removes the complexity of orchestrating many Slack API calls behind a simple endpoint.
 
 ## Instructions
 
@@ -49,6 +53,7 @@ Add the required scopes:
 The scopes are:
 
     users:read
+    usergroups:read
     groups:read
     groups:write
     chat:write:bot
@@ -83,10 +88,6 @@ Configure the bot using the following environment variables.
 - SLACK_CHANNEL_GROUPS - user groups to invite to channels e.g. "devteam"
 - HTTP_BIND_PORT (default 8080)
 - HTTP_BIND_HOST (default 0.0.0.0)
-
-## More info
-
-Slack API: https://api.slack.com/bot-users
 
 ## Contributing
 
