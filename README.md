@@ -79,7 +79,8 @@ If you change anything, don't forget to rebuild before running again.
 Configure the bot using the following environment variables.
 
 - SLACK_USER_TOKEN - must have the right permission scopes (see 'Creating a Slack app' in this document)
-- SLACK_CHANNEL_MEMBERS - users to invite e.g. "janesmith,bob"
+- SLACK_CHANNEL_MEMBERS - users to invite to channels e.g. "janesmith,bob"
+- SLACK_CHANNEL_GROUPS - user groups to invite to channels e.g. "devteam"
 - HTTP_BIND_PORT (default 8080)
 - HTTP_BIND_HOST (default 0.0.0.0)
 

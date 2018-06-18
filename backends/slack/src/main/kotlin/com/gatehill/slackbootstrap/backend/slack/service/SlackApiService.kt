@@ -4,7 +4,9 @@ import com.gatehill.slackbootstrap.backend.slack.config.SlackSettings
 import com.gatehill.slackbootstrap.util.jsonMapper
 import org.apache.http.NameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
+import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.utils.URIBuilder
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
@@ -21,26 +23,47 @@ import java.nio.charset.Charset
 class SlackApiService {
     private val logger: Logger = LogManager.getLogger(SlackApiService::class.java)
 
+    enum class HttpMethod {
+        GET,
+        POST
+    }
+
     enum class BodyMode {
         FORM,
         JSON
     }
 
     inline fun <reified R> invokeSlackCommand(commandName: String, params: Map<String, *> = emptyMap<String, Any>(),
-                                              bodyMode: BodyMode = BodyMode.FORM) = invokeSlackCommand(commandName, params, R::class.java, bodyMode)
+                                              method: HttpMethod = HttpMethod.POST, bodyMode: BodyMode = BodyMode.FORM) =
+            invokeSlackCommand(commandName, params, R::class.java, method, bodyMode)
 
     fun <R> invokeSlackCommand(commandName: String, params: Map<String, *>, responseClass: Class<R>,
-                               bodyMode: BodyMode): R {
+                               method: HttpMethod, bodyMode: BodyMode): R {
 
         HttpClientBuilder.create().build().use { httpClient ->
             // invoke command
             try {
-                val request = HttpPost("https://slack.com/api/$commandName")
-                when (bodyMode) {
-                    BodyMode.FORM -> request.entity = UrlEncodedFormEntity(generateFormBody(params), "UTF-8")
-                    BodyMode.JSON -> {
-                        request.addHeader("Authorization", "Bearer ${SlackSettings.slackUserToken}")
-                        request.entity = StringEntity(generateJsonBody(params), ContentType.APPLICATION_JSON)
+                val uriBuilder = URIBuilder().apply {
+                    scheme = "https"
+                    host = "slack.com"
+                    path = "/api/$commandName"
+                }
+
+                val request = when (method) {
+                    HttpMethod.GET -> {
+                        uriBuilder.addParameters(buildNameValuePairs(params))
+                        HttpGet(uriBuilder.build())
+                    }
+                    HttpMethod.POST -> {
+                        HttpPost(uriBuilder.build()).apply {
+                            when (bodyMode) {
+                                BodyMode.FORM -> this.entity = UrlEncodedFormEntity(buildNameValuePairs(params), "UTF-8")
+                                BodyMode.JSON -> {
+                                    this.addHeader("Authorization", "Bearer ${SlackSettings.slackUserToken}")
+                                    this.entity = StringEntity(generateJsonBody(params), ContentType.APPLICATION_JSON)
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -59,7 +82,7 @@ class SlackApiService {
         }
     }
 
-    private fun generateFormBody(params: Map<String, Any?>): List<NameValuePair> {
+    private fun buildNameValuePairs(params: Map<String, Any?>): List<NameValuePair> {
         val payload = mutableListOf<NameValuePair>()
         for ((key, value) in params) {
             if (key != "token") {

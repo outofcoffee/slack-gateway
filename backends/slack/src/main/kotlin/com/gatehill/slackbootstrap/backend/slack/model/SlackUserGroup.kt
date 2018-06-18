@@ -3,9 +3,8 @@ package com.gatehill.slackbootstrap.backend.slack.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 /**
- * This is actually a private channel.
+ * This is a list of users.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SlackGroup(val id: String,
-                      val name: String,
-                      val members: List<String>)
+data class SlackUserGroup(val id: String,
+                          val name: String)

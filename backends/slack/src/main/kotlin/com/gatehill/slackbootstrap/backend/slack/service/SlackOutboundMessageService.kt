@@ -2,10 +2,7 @@ package com.gatehill.slackbootstrap.backend.slack.service
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackbootstrap.backend.slack.config.SlackSettings
-import com.gatehill.slackbootstrap.backend.slack.model.GroupsCreateResponse
-import com.gatehill.slackbootstrap.backend.slack.model.GroupsListResponse
-import com.gatehill.slackbootstrap.backend.slack.model.SlackGroup
-import com.gatehill.slackbootstrap.backend.slack.model.UsersListResponse
+import com.gatehill.slackbootstrap.backend.slack.model.*
 import com.gatehill.slackbootstrap.service.OutboundMessageService
 import com.gatehill.slackbootstrap.util.jsonMapper
 import org.apache.logging.log4j.LogManager
@@ -21,7 +18,7 @@ class SlackOutboundMessageService @Inject constructor(private val slackApiServic
     private val logger: Logger = LogManager.getLogger(SlackOutboundMessageService::class.java)
 
     private val users by lazy {
-        val reply = slackApiService.invokeSlackCommand<UsersListResponse>("users.list")
+        val reply = slackApiService.invokeSlackCommand<UsersListResponse>(commandName = "users.list")
         slackApiService.checkReplyOk(reply.ok)
         reply.members
     }
@@ -38,7 +35,7 @@ class SlackOutboundMessageService @Inject constructor(private val slackApiServic
     }
 
     private fun ensureChannelExists(channelName: String): SlackGroup {
-        val reply = slackApiService.invokeSlackCommand<GroupsListResponse>("groups.list")
+        val reply = slackApiService.invokeSlackCommand<GroupsListResponse>(commandName = "groups.list")
         slackApiService.checkReplyOk(reply.ok)
 
         reply.groups.firstOrNull { it.name == channelName }?.let {
@@ -54,10 +51,12 @@ class SlackOutboundMessageService @Inject constructor(private val slackApiServic
     }
 
     private fun createChannel(channelName: String): SlackGroup {
-        val reply = slackApiService.invokeSlackCommand<GroupsCreateResponse>("groups.create", mapOf(
-                "name" to channelName,
-                "validate" to "true"
-        ))
+        val reply = slackApiService.invokeSlackCommand<GroupsCreateResponse>(
+                commandName = "groups.create",
+                params = mapOf(
+                        "name" to channelName,
+                        "validate" to "true"
+                ))
 
         logger.debug("Create channel response: $reply")
 
@@ -74,24 +73,77 @@ class SlackOutboundMessageService @Inject constructor(private val slackApiServic
     private fun checkParticipants(channel: SlackGroup) {
         logger.debug("Checking participants of channel: ${channel.name}")
 
-        val memberIds = SlackSettings.members.mapNotNull { memberUsername ->
+        val memberIds = mutableListOf<String>()
+
+        SlackSettings.inviteGroups.forEach { userGroupName ->
+            try {
+                fetchUserGroup(userGroupName)?.let { userGroup ->
+                    memberIds += listUserGroupUserIds(userGroup)
+                }
+            } catch (e: Exception) {
+                logger.warn("Error inviting user group: $userGroupName - continuing", e)
+            }
+        }
+
+        memberIds += SlackSettings.inviteMembers.mapNotNull { memberUsername ->
             users.firstOrNull { user -> user.name == memberUsername }?.id
         }
+
+        logger.info("Inviting ${memberIds.size} members to channel: ${channel.name}")
 
         memberIds
                 .filterNot { memberId: String -> channel.members.contains(memberId) }
                 .forEach { memberId ->
                     logger.info("Inviting member $memberId to channel ${channel.name}")
-                    inviteToChannel(channel, memberId)
+                    try {
+                        inviteToChannel(channel, memberId)
+                    } catch (e: Exception) {
+                        logger.warn("Error inviting member $memberId to channel ${channel.name} - continuing", e)
+                    }
                 }
     }
 
     private fun inviteToChannel(channel: SlackGroup, memberId: String) {
-        val reply = slackApiService.invokeSlackCommand<Map<String, Any>>("groups.invite", mapOf(
-                "channel" to channel.id,
-                "user" to memberId
-        ))
+        val reply = slackApiService.invokeSlackCommand<Map<String, Any>>(
+                commandName = "groups.invite",
+                params = mapOf(
+                        "channel" to channel.id,
+                        "user" to memberId
+                ))
         slackApiService.checkReplyOk(reply)
+    }
+
+    /**
+     * @return the user group with the given name, or `null`
+     */
+    private fun fetchUserGroup(userGroupName: String): SlackUserGroup? {
+        logger.debug("Fetching user group: $userGroupName")
+
+        val reply = slackApiService.invokeSlackCommand<UserGroupsListResponse>(
+                commandName = "usergroups.list",
+                method = SlackApiService.HttpMethod.GET
+        )
+
+        slackApiService.checkReplyOk(reply.ok)
+        return reply.usergroups.first { it.name.equals(userGroupName, ignoreCase = true) }
+    }
+
+    /**
+     * @return the list of user IDs within the user group
+     */
+    private fun listUserGroupUserIds(userGroup: SlackUserGroup): List<String> {
+        logger.debug("Listing user IDs in user group: ${userGroup.name}")
+
+        val reply = slackApiService.invokeSlackCommand<UserGroupsUsersListResponse>(
+                commandName = "usergroups.users.list",
+                method = SlackApiService.HttpMethod.GET,
+                params = mapOf(
+                        "usergroup" to userGroup.id
+                )
+        )
+
+        slackApiService.checkReplyOk(reply.ok)
+        return reply.users
     }
 
     private fun sendMessage(channelName: String, message: String) {
