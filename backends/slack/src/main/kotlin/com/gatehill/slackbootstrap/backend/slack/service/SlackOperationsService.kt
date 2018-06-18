@@ -64,10 +64,10 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
     }
 
     /**
-     * @return the user group with the given name, or `null`
+     * @return the user group with the given handle, or `null`
      */
-    internal fun fetchUserGroup(userGroupName: String): SlackUserGroup? {
-        logger.debug("Fetching user group: $userGroupName")
+    internal fun fetchUserGroup(userGroupHandle: String): SlackUserGroup? {
+        logger.debug("Fetching user group: $userGroupHandle")
 
         val reply = slackApiService.invokeSlackCommand<UserGroupsListResponse>(
                 commandName = "usergroups.list",
@@ -75,7 +75,7 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         )
 
         slackApiService.checkReplyOk(reply.ok)
-        return reply.usergroups.first { it.name.equals(userGroupName, ignoreCase = true) }
+        return reply.usergroups.firstOrNull { it.handle.equals(userGroupHandle, ignoreCase = true) }
     }
 
     /**
