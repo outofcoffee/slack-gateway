@@ -9,5 +9,5 @@ abstract class EnvironmentSettings {
     var env: Map<String, String>? = null
 
     protected fun getenv(name: String): String? =
-            env?.let { env!![name] } ?: System.getenv(name)
+        env?.let { env!![name] } ?: System.getenv(name)
 }

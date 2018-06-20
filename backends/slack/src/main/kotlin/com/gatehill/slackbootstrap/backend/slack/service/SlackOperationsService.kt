@@ -2,7 +2,14 @@ package com.gatehill.slackbootstrap.backend.slack.service
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackbootstrap.backend.slack.config.SlackSettings
-import com.gatehill.slackbootstrap.backend.slack.model.*
+import com.gatehill.slackbootstrap.backend.slack.model.GroupsCreateResponse
+import com.gatehill.slackbootstrap.backend.slack.model.GroupsListResponse
+import com.gatehill.slackbootstrap.backend.slack.model.SlackGroup
+import com.gatehill.slackbootstrap.backend.slack.model.SlackUser
+import com.gatehill.slackbootstrap.backend.slack.model.SlackUserGroup
+import com.gatehill.slackbootstrap.backend.slack.model.UserGroupsListResponse
+import com.gatehill.slackbootstrap.backend.slack.model.UserGroupsUsersListResponse
+import com.gatehill.slackbootstrap.backend.slack.model.UsersListResponse
 import com.gatehill.slackbootstrap.util.jsonMapper
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
@@ -20,14 +27,14 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
     private val logger: Logger = LogManager.getLogger(SlackOperationsService::class.java)
 
     private val cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(SlackSettings.cacheSeconds, TimeUnit.SECONDS)
-            .build(object : CacheLoader<String, List<*>>() {
-                override fun load(key: String) = when (key) {
-                    "users" -> fetchUsers()
-                    "userGroups" -> fetchUserGroups()
-                    else -> throw NotImplementedError()
-                }
-            })
+        .expireAfterWrite(SlackSettings.cacheSeconds, TimeUnit.SECONDS)
+        .build(object : CacheLoader<String, List<*>>() {
+            override fun load(key: String) = when (key) {
+                "users" -> fetchUsers()
+                "userGroups" -> fetchUserGroups()
+                else -> throw NotImplementedError()
+            }
+        })
 
     @Suppress("UNCHECKED_CAST")
     internal val users
@@ -54,8 +61,8 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         logger.debug("Fetching all user groups")
 
         val reply = slackApiService.invokeSlackCommand<UserGroupsListResponse>(
-                commandName = "usergroups.list",
-                method = SlackApiService.HttpMethod.GET
+            commandName = "usergroups.list",
+            method = SlackApiService.HttpMethod.GET
         )
 
         slackApiService.checkReplyOk(reply.ok)
@@ -74,11 +81,12 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         logger.debug("Creating channel: $channelName")
 
         val reply = slackApiService.invokeSlackCommand<GroupsCreateResponse>(
-                commandName = "groups.create",
-                params = mapOf(
-                        "name" to channelName,
-                        "validate" to "true"
-                ))
+            commandName = "groups.create",
+            params = mapOf(
+                "name" to channelName,
+                "validate" to "true"
+            )
+        )
 
         logger.debug("Create channel response: $reply")
 
@@ -89,11 +97,12 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
 
     internal fun inviteToPrivateChannel(channel: SlackGroup, memberId: String) {
         val reply = slackApiService.invokeSlackCommand<Map<String, Any>>(
-                commandName = "groups.invite",
-                params = mapOf(
-                        "channel" to channel.id,
-                        "user" to memberId
-                ))
+            commandName = "groups.invite",
+            params = mapOf(
+                "channel" to channel.id,
+                "user" to memberId
+            )
+        )
 
         slackApiService.checkReplyOk(reply)
     }
@@ -113,11 +122,11 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         logger.debug("Listing user IDs in user group: ${userGroup.name}")
 
         val reply = slackApiService.invokeSlackCommand<UserGroupsUsersListResponse>(
-                commandName = "usergroups.users.list",
-                method = SlackApiService.HttpMethod.GET,
-                params = mapOf(
-                        "usergroup" to userGroup.id
-                )
+            commandName = "usergroups.users.list",
+            method = SlackApiService.HttpMethod.GET,
+            params = mapOf(
+                "usergroup" to userGroup.id
+            )
         )
 
         slackApiService.checkReplyOk(reply.ok)
@@ -131,9 +140,10 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         logger.info("Forwarding message to channel '$channelName': $message")
 
         val reply = slackApiService.invokeSlackCommand<Map<String, Any>>(
-                commandName = "chat.postMessage",
-                params = params,
-                bodyMode = SlackApiService.BodyMode.JSON)
+            commandName = "chat.postMessage",
+            params = params,
+            bodyMode = SlackApiService.BodyMode.JSON
+        )
 
         slackApiService.checkReplyOk(reply)
     }

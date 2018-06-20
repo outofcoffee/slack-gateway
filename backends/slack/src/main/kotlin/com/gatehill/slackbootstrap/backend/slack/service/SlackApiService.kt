@@ -33,12 +33,20 @@ class SlackApiService {
         JSON
     }
 
-    inline fun <reified R> invokeSlackCommand(commandName: String, params: Map<String, *> = emptyMap<String, Any>(),
-                                              method: HttpMethod = HttpMethod.POST, bodyMode: BodyMode = BodyMode.FORM) =
-            invokeSlackCommand(commandName, params, R::class.java, method, bodyMode)
+    inline fun <reified R> invokeSlackCommand(
+        commandName: String,
+        params: Map<String, *> = emptyMap<String, Any>(),
+        method: HttpMethod = HttpMethod.POST,
+        bodyMode: BodyMode = BodyMode.FORM
+    ) = invokeSlackCommand(commandName, params, R::class.java, method, bodyMode)
 
-    fun <R> invokeSlackCommand(commandName: String, params: Map<String, *>, responseClass: Class<R>,
-                               method: HttpMethod, bodyMode: BodyMode): R {
+    fun <R> invokeSlackCommand(
+        commandName: String,
+        params: Map<String, *>,
+        responseClass: Class<R>,
+        method: HttpMethod,
+        bodyMode: BodyMode
+    ): R {
 
         HttpClientBuilder.create().build().use { httpClient ->
             // invoke command
@@ -57,7 +65,9 @@ class SlackApiService {
                     HttpMethod.POST -> {
                         HttpPost(uriBuilder.build()).apply {
                             when (bodyMode) {
-                                BodyMode.FORM -> this.entity = UrlEncodedFormEntity(buildNameValuePairs(params), "UTF-8")
+                                BodyMode.FORM -> this.entity =
+                                        UrlEncodedFormEntity(buildNameValuePairs(params), "UTF-8")
+
                                 BodyMode.JSON -> {
                                     this.addHeader("Authorization", "Bearer ${SlackSettings.slackUserToken}")
                                     this.entity = StringEntity(generateJsonBody(params), ContentType.APPLICATION_JSON)
@@ -75,7 +85,6 @@ class SlackApiService {
                         return jsonMapper.readValue(jsonResponse, responseClass)
                     }
                 }
-
             } catch (e: Exception) {
                 throw RuntimeException("Error calling Slack API: $commandName", e)
             }

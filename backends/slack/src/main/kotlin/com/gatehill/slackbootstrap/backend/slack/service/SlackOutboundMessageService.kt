@@ -27,7 +27,6 @@ class SlackOutboundMessageService
             // channel already exists
             logger.debug("Channel $channelName already exists")
             return it
-
         } ?: run {
             // create the channel
             logger.debug("Channel $channelName does not exist - creating")
@@ -57,14 +56,14 @@ class SlackOutboundMessageService
         logger.info("Inviting ${memberIds.size} members to channel: ${channel.name}")
 
         memberIds
-                .filterNot { memberId: String -> channel.members.contains(memberId) }
-                .forEach { memberId ->
-                    logger.info("Inviting member $memberId to channel ${channel.name}")
-                    try {
-                        slackOperationsService.inviteToPrivateChannel(channel, memberId)
-                    } catch (e: Exception) {
-                        logger.warn("Error inviting member $memberId to channel ${channel.name} - continuing", e)
-                    }
+            .filterNot { memberId: String -> channel.members.contains(memberId) }
+            .forEach { memberId ->
+                logger.info("Inviting member $memberId to channel ${channel.name}")
+                try {
+                    slackOperationsService.inviteToPrivateChannel(channel, memberId)
+                } catch (e: Exception) {
+                    logger.warn("Error inviting member $memberId to channel ${channel.name} - continuing", e)
                 }
+            }
     }
 }
