@@ -15,4 +15,8 @@ object SlackSettings : EnvironmentSettings() {
     val inviteGroups: List<String> by lazy {
         getenv("SLACK_CHANNEL_GROUPS")?.split(",")?.map(String::trim) ?: emptyList()
     }
+
+    val cacheSeconds by lazy {
+        getenv("SLACK_CACHE_SECONDS")?.toLong() ?: 300
+    }
 }

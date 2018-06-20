@@ -4,8 +4,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackbootstrap.backend.slack.config.SlackSettings
 import com.gatehill.slackbootstrap.backend.slack.model.*
 import com.gatehill.slackbootstrap.util.jsonMapper
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -16,15 +19,47 @@ import javax.inject.Inject
 class SlackOperationsService @Inject constructor(private val slackApiService: SlackApiService) {
     private val logger: Logger = LogManager.getLogger(SlackOperationsService::class.java)
 
-    internal val users by lazy {
-        val reply = slackApiService.invokeSlackCommand<UsersListResponse>(commandName = "users.list")
-        slackApiService.checkReplyOk(reply.ok)
-        reply.members
-    }
+    private val cache = CacheBuilder.newBuilder()
+            .expireAfterWrite(SlackSettings.cacheSeconds, TimeUnit.SECONDS)
+            .build(object : CacheLoader<String, List<*>>() {
+                override fun load(key: String) = when (key) {
+                    "users" -> fetchUsers()
+                    "userGroups" -> fetchUserGroups()
+                    else -> throw NotImplementedError()
+                }
+            })
+
+    @Suppress("UNCHECKED_CAST")
+    internal val users
+        get() = cache["users"] as List<SlackUser>
+
+    @Suppress("UNCHECKED_CAST")
+    private val userGroups
+        get() = cache["userGroups"] as List<SlackUserGroup>
 
     init {
         // force evaluation of token on startup
         SlackSettings.slackUserToken
+    }
+
+    private fun fetchUsers(): List<SlackUser> {
+        logger.debug("Fetching all users")
+
+        val reply = slackApiService.invokeSlackCommand<UsersListResponse>(commandName = "users.list")
+        slackApiService.checkReplyOk(reply.ok)
+        return reply.members
+    }
+
+    private fun fetchUserGroups(): List<SlackUserGroup> {
+        logger.debug("Fetching all user groups")
+
+        val reply = slackApiService.invokeSlackCommand<UserGroupsListResponse>(
+                commandName = "usergroups.list",
+                method = SlackApiService.HttpMethod.GET
+        )
+
+        slackApiService.checkReplyOk(reply.ok)
+        return reply.usergroups
     }
 
     internal fun listPrivateChannels(): List<SlackGroup> {
@@ -68,14 +103,7 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
      */
     internal fun fetchUserGroup(userGroupHandle: String): SlackUserGroup? {
         logger.debug("Fetching user group: $userGroupHandle")
-
-        val reply = slackApiService.invokeSlackCommand<UserGroupsListResponse>(
-                commandName = "usergroups.list",
-                method = SlackApiService.HttpMethod.GET
-        )
-
-        slackApiService.checkReplyOk(reply.ok)
-        return reply.usergroups.firstOrNull { it.handle.equals(userGroupHandle, ignoreCase = true) }
+        return userGroups.firstOrNull { it.handle.equals(userGroupHandle, ignoreCase = true) }
     }
 
     /**
