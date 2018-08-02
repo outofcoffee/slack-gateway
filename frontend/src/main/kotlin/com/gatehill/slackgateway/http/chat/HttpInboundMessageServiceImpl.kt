@@ -1,9 +1,11 @@
 package com.gatehill.slackgateway.http.chat
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackgateway.exception.HttpCodeException
 import com.gatehill.slackgateway.http.config.ChatSettings
 import com.gatehill.slackgateway.service.InboundMessageService
 import com.gatehill.slackgateway.service.OutboundMessageService
+import com.gatehill.slackgateway.util.jsonMapper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.AsyncResult
 import io.vertx.core.Future
@@ -73,6 +75,9 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
         }
         router.post("/messages/text").handler { routingContext ->
             handle(vertx, routingContext, this::handlePlain)
+        }
+        router.post("/post").handler { routingContext ->
+            handle(vertx, routingContext, this::handleLegacy)
         }
     }
 
@@ -151,6 +156,20 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
 
         outboundMessageService.forward(message)
         return "Posted plain message"
+    }
+
+    /**
+     * Legacy endpoint to support old clients.
+     */
+    private fun handleLegacy(routingContext: RoutingContext): String {
+        val channelName = routingContext.request().getParam("channel")
+                ?: throw HttpCodeException(400, "No channel in request")
+
+        val message = jsonMapper.readValue<Map<String, *>>(routingContext.bodyAsString).toMutableMap()
+        message += "channel" to channelName
+
+        outboundMessageService.forward(message)
+        return "Posted legacy message"
     }
 
     private fun transformEntry(entry: MutableMap.MutableEntry<String, String>) =
