@@ -1,5 +1,6 @@
 package com.gatehill.slackgateway.http.chat
 
+import com.gatehill.slackgateway.exception.HttpCodeException
 import com.gatehill.slackgateway.http.config.ChatSettings
 import com.gatehill.slackgateway.service.InboundMessageService
 import com.gatehill.slackgateway.service.OutboundMessageService
@@ -59,41 +60,116 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
                 <html>
                     <h3>Slack Gateway</h3>
                     <ul>
-                        <li><a href="/post">/post</a></li>
+                        <li>/messages/raw</li>
+                        <li>/messages/text</li>
                     </ul>
                 </htm>
             """.trimIndent()
             )
         }
 
-        router.post("/post").handler { routingContext ->
-            vertx.executeBlocking(
-                Handler<Future<String>> {
-                    try {
-                        it.complete(handle(routingContext))
-                    } catch (e: Exception) {
-                        it.fail(e)
-                    }
-                },
-                Handler<AsyncResult<String?>> {
-                    if (it.succeeded()) {
-                        routingContext.response().end(it.result())
-                    } else {
-                        routingContext.fail(it.cause())
-                    }
-                }
-            )
+        router.post("/messages/raw").handler { routingContext ->
+            handle(vertx, routingContext, this::handleRaw)
+        }
+        router.post("/messages/text").handler { routingContext ->
+            handle(vertx, routingContext, this::handlePlain)
         }
     }
 
-    private fun handle(routingContext: RoutingContext): String {
-        val channelName = routingContext.request().getParam("channel")
-        outboundMessageService.forward(channelName, routingContext.bodyAsString)
-        return "OK"
+    private fun handle(vertx: Vertx, routingContext: RoutingContext, processor: (RoutingContext) -> String) {
+        vertx.executeBlocking(
+            Handler<Future<String>> {
+                try {
+                    it.complete(processor(routingContext))
+                } catch (e: Exception) {
+                    it.fail(e)
+                }
+            },
+            Handler<AsyncResult<String?>> {
+                if (it.succeeded()) {
+                    routingContext.response().end(it.result())
+                } else {
+                    it.cause().let { cause ->
+                        logger.error(
+                            "Error handling ${routingContext.request().method()} request to ${routingContext.request().uri()}",
+                            cause
+                        )
+                        when (cause) {
+                            is HttpCodeException -> routingContext.response().setStatusCode(cause.code).end(cause.message)
+                            else -> routingContext.fail(cause)
+                        }
+                    }
+                }
+            }
+        )
     }
+
+    private fun handleRaw(routingContext: RoutingContext): String {
+        outboundMessageService.forward(routingContext.bodyAsString)
+        return "Posted raw message"
+    }
+
+    private fun handlePlain(routingContext: RoutingContext): String {
+        val channelName = try {
+            routingContext.request().getParam("channel")
+        } catch (e: Exception) {
+            throw HttpCodeException(400, "Unable to parse channel name")
+        }
+
+        val color = routingContext.request().getParam("color") ?: "#000000"
+        val showAsAttachment = routingContext.request().getParam("attachment") == "true"
+
+        val requestParams = routingContext.request().params()
+            .filterNot { excludedParams.contains(it.key) }
+            .joinToString(" | ", transform = this::transformEntry)
+
+        val text = (routingContext.request().getParam("text") ?: "") + requestParams
+
+        val message = mutableMapOf<String, Any>(
+            "channel" to channelName
+        )
+
+        if (showAsAttachment) {
+            val attachment = mutableMapOf(
+                "text" to text,
+                "color" to color.let { if (it.startsWith("#")) it else "#$it" }
+            )
+
+            attachment += listOf(
+                "author_name",
+                "title",
+                "title_link"
+            ).mapNotNull { key ->
+                routingContext.request().getParam(key)?.let { value -> key to value }
+            }
+
+            message += "attachments" to listOf(attachment)
+
+        } else {
+            message += "text" to text
+        }
+
+        outboundMessageService.forward(message)
+        return "Posted plain message"
+    }
+
+    private fun transformEntry(entry: MutableMap.MutableEntry<String, String>) =
+        "${entry.key.replace("_", " ")}: *${entry.value}*"
 
     override fun stopListening() {
         server?.close()
         server = null
+    }
+
+    companion object {
+        private val excludedParams = arrayOf(
+            "attachment",
+            "author_name",
+            "channel",
+            "color",
+            "text",
+            "title",
+            "title_link"
+        )
     }
 }

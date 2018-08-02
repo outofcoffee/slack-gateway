@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UserGroupsListResponse(
-    val ok: Boolean,
+    override val ok: Boolean,
     val usergroups: List<SlackUserGroup>
-)
+) : ResponseWithStatus

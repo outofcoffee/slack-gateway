@@ -6,5 +6,6 @@ package com.gatehill.slackgateway.service
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 interface OutboundMessageService {
-    fun forward(channelName: String, message: String)
+    fun forward(raw: String)
+    fun forward(message: Map<String, *>)
 }

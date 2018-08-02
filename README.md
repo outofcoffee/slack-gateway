@@ -30,18 +30,36 @@ If you'd like to run Slack Gateway yourself as a Docker container, you can do th
 
 ## Example usage
 
+### Using Slack format
+
 Send a message to a channel:
 
-    curl http://localhost:8080/post?channel=foo \
+    curl http://localhost:8080/messages/raw \
         --header "Content-Type: application/json" \
-        --data '{"text":"Hello World!"}'
+        --data '{"channel":"general", text":"Hello World!"}'
         
 Send a message with attachments:
 
-    curl http://localhost:8080/post?channel=foo \
+    curl http://localhost:8080/messages/raw \
         --header "Content-Type: application/json" \
-        --data '{"text":"Hello World!","attachments":[{"text":"More info","color":"#33ee33"}]}'
+        --data '{"channel":"general", text":"Hello World!","attachments":[{"text":"More info","color":"#33ee33"}]}'
 
+### Using simple key-value format
+
+Send a message to a channel:
+
+    curl http://localhost:8080/messages/text \
+        --data 'channel=general' \
+        --data 'text=Hello%20World!'
+
+Send a message with attachments:
+
+    curl http://localhost:8080/messages/text \
+        --data 'channel=general' \
+        --data 'text=Hello%20World!' \
+        --data 'attachment=true' \
+        --data 'color=00ff00'
+        
 ## Creating a Slack app
 
 As a Slack admin, create a Slack app: https://api.slack.com/apps/new

@@ -1,6 +1,7 @@
 package com.gatehill.slackgateway.backend.slack.service
 
 import com.gatehill.slackgateway.backend.slack.config.SlackSettings
+import com.gatehill.slackgateway.backend.slack.model.ResponseWithStatus
 import com.gatehill.slackgateway.util.jsonMapper
 import org.apache.http.NameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
@@ -82,13 +83,31 @@ class SlackApiService {
                         val jsonResponse = String(it.readBytes(), Charset.forName("UTF-8"))
                         logger.debug("Slack API: $commandName returned HTTP status: ${response.statusLine.statusCode}")
                         logger.trace("Slack API: $commandName returned: $jsonResponse")
-                        return jsonMapper.readValue(jsonResponse, responseClass)
+
+                        return parseResponse(jsonResponse, responseClass)
                     }
                 }
             } catch (e: Exception) {
                 throw RuntimeException("Error calling Slack API: $commandName", e)
             }
         }
+    }
+
+    private fun <R> parseResponse(
+        jsonResponse: String,
+        responseClass: Class<R>
+    ): R {
+        val parsedResponse = jsonMapper.readValue(jsonResponse, responseClass)
+        when (parsedResponse) {
+            is ResponseWithStatus -> if (!parsedResponse.ok) {
+                throw RuntimeException("Expected response 'ok' field to be true: $jsonResponse")
+            }
+            is Map<*, *> -> if (true != parsedResponse["ok"]) {
+                throw RuntimeException("Expected response 'ok' field to be true: $jsonResponse")
+            }
+            else -> logger.warn("Unable to check response for type: $responseClass - payload: $jsonResponse")
+        }
+        return parsedResponse
     }
 
     private fun buildNameValuePairs(params: Map<String, Any?>): List<NameValuePair> {
@@ -103,15 +122,4 @@ class SlackApiService {
     }
 
     private fun generateJsonBody(params: Map<String, *>) = jsonMapper.writeValueAsString(params)
-
-    fun checkReplyOk(replyOk: Boolean) {
-        if (!replyOk) {
-            throw RuntimeException("Response 'ok' field was: $replyOk - expected: true")
-        }
-    }
-
-    fun checkReplyOk(reply: Map<String, Any>) {
-        val replyOk = reply["ok"]
-        checkReplyOk(replyOk == true)
-    }
 }

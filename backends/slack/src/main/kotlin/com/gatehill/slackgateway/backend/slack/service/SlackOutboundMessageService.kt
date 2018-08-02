@@ -1,8 +1,11 @@
 package com.gatehill.slackgateway.backend.slack.service
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackgateway.backend.slack.config.SlackSettings
 import com.gatehill.slackgateway.backend.slack.model.SlackGroup
+import com.gatehill.slackgateway.exception.HttpCodeException
 import com.gatehill.slackgateway.service.OutboundMessageService
+import com.gatehill.slackgateway.util.jsonMapper
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import javax.inject.Inject
@@ -16,10 +19,17 @@ class SlackOutboundMessageService
 @Inject constructor(private val slackOperationsService: SlackOperationsService) : OutboundMessageService {
     private val logger: Logger = LogManager.getLogger(SlackOutboundMessageService::class.java)
 
-    override fun forward(channelName: String, message: String) {
+    override fun forward(raw: String) {
+        val message = jsonMapper.readValue<Map<String, *>>(raw).toMutableMap()
+        forward(message)
+    }
+
+    override fun forward(message: Map<String, *>) {
+        val channelName = message["channel"] as String? ?: throw HttpCodeException(400, "No channel in message")
+
         val channel = ensureChannelExists(channelName)
         checkParticipants(channel)
-        slackOperationsService.sendMessage(channelName, message)
+        slackOperationsService.sendMessage(message)
     }
 
     private fun ensureChannelExists(channelName: String): SlackGroup {

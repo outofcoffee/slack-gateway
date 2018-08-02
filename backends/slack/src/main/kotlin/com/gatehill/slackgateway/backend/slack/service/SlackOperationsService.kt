@@ -1,6 +1,5 @@
 package com.gatehill.slackgateway.backend.slack.service
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackgateway.backend.slack.config.SlackSettings
 import com.gatehill.slackgateway.backend.slack.model.GroupsCreateResponse
 import com.gatehill.slackgateway.backend.slack.model.GroupsListResponse
@@ -10,7 +9,6 @@ import com.gatehill.slackgateway.backend.slack.model.SlackUserGroup
 import com.gatehill.slackgateway.backend.slack.model.UserGroupsListResponse
 import com.gatehill.slackgateway.backend.slack.model.UserGroupsUsersListResponse
 import com.gatehill.slackgateway.backend.slack.model.UsersListResponse
-import com.gatehill.slackgateway.util.jsonMapper
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import org.apache.logging.log4j.LogManager
@@ -53,7 +51,6 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         logger.debug("Fetching all users")
 
         val reply = slackApiService.invokeSlackCommand<UsersListResponse>(commandName = "users.list")
-        slackApiService.checkReplyOk(reply.ok)
         return reply.members
     }
 
@@ -65,7 +62,6 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
             method = SlackApiService.HttpMethod.GET
         )
 
-        slackApiService.checkReplyOk(reply.ok)
         return reply.usergroups
     }
 
@@ -73,8 +69,7 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
         logger.debug("Listing private channels")
 
         val reply = slackApiService.invokeSlackCommand<GroupsListResponse>(commandName = "groups.list")
-        slackApiService.checkReplyOk(reply.ok)
-        return reply.groups
+        return reply.groups ?: emptyList()
     }
 
     internal fun createPrivateChannel(channelName: String): SlackGroup {
@@ -90,21 +85,18 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
 
         logger.debug("Create channel response: $reply")
 
-        slackApiService.checkReplyOk(reply.ok)
         logger.debug("Channel $channelName created")
         return reply.group
     }
 
     internal fun inviteToPrivateChannel(channel: SlackGroup, memberId: String) {
-        val reply = slackApiService.invokeSlackCommand<Map<String, Any>>(
+        slackApiService.invokeSlackCommand<Map<String, Any>>(
             commandName = "groups.invite",
             params = mapOf(
                 "channel" to channel.id,
                 "user" to memberId
             )
         )
-
-        slackApiService.checkReplyOk(reply)
     }
 
     /**
@@ -129,22 +121,16 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
             )
         )
 
-        slackApiService.checkReplyOk(reply.ok)
         return reply.users
     }
 
-    internal fun sendMessage(channelName: String, message: String) {
-        val params = jsonMapper.readValue<Map<String, *>>(message).toMutableMap()
-        params += "channel" to channelName
+    internal fun sendMessage(params: Map<String, Any?>) {
+        logger.info("Forwarding message to channel '${params["channel"]}': $params")
 
-        logger.info("Forwarding message to channel '$channelName': $message")
-
-        val reply = slackApiService.invokeSlackCommand<Map<String, Any>>(
+        slackApiService.invokeSlackCommand<Map<String, Any>>(
             commandName = "chat.postMessage",
             params = params,
             bodyMode = SlackApiService.BodyMode.JSON
         )
-
-        slackApiService.checkReplyOk(reply)
     }
 }
