@@ -31,7 +31,7 @@ dependencies {
 
 jar {
     manifest.attributes(
-            'Slack-Bootstrap-Version': "${project.version}"
+            'slack-gateway-Version': "${project.version}"
     )
 }
 

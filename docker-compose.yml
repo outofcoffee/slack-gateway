@@ -1,8 +1,8 @@
 version: '2'
 
 services:
-  slack-bootstrap:
-    image: outofcoffee/slack-bootstrap
+  slack-gateway:
+    image: outofcoffee/slack-gateway
     build: ./distro
     ports:
       - "8080:8080"

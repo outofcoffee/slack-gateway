@@ -1,8 +1,8 @@
-# Slack Bootstrap: A tool to create Slack channels and post to them [![CircleCI](https://circleci.com/gh/outofcoffee/slack-bootstrap.svg?style=svg)](https://circleci.com/gh/outofcoffee/slack-bootstrap)
+# Slack Gateway: A tool to create a Slack channel, invite people and post a message in a single request. [![CircleCI](https://circleci.com/gh/outofcoffee/slack-gateway.svg?style=svg)](https://circleci.com/gh/outofcoffee/slack-gateway)
 
 ## What can it do?
 
-Runs as a server, and upon receipt of a message:
+Runs as a server, listening for an HTTP request. Upon receipt of a message, the gateway:
 
 * creates the given Slack channel if it doesn't exist
 * ensures a list of users (or user groups) are in the channel (if not - invites them)
@@ -18,13 +18,13 @@ This removes the complexity of orchestrating many Slack API calls behind a simpl
 
 ## Getting started
 
-If you'd like to run Slack Bootstrap yourself as a Docker container, you can do the following:
+If you'd like to run Slack Gateway yourself as a Docker container, you can do the following:
 
     docker run -d \
         --env SLACK_USER_TOKEN="CHANGEME" \
         --env SLACK_CHANNEL_MEMBERS="jsmith,mjones" \
         --publish 8080:8080 \
-        outofcoffee/slack-bootstrap
+        outofcoffee/slack-gateway
 
 > Note: See the _Environment variables_ section for the available configuration settings.
 

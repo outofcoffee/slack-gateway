@@ -1,4 +1,4 @@
-rootProject.name = 'slack-bootstrap'
+rootProject.name = 'slack-gateway'
 
 include ':backends:slack'
 project(':backends:slack').name = 'backends-slack'

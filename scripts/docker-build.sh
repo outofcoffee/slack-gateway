@@ -61,4 +61,4 @@ function buildPushImage()
 }
 
 login
-buildPushImage slack-bootstrap distro
+buildPushImage slack-gateway distro
