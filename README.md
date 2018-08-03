@@ -44,7 +44,11 @@ Send a message with attachments:
         --header "Content-Type: application/json" \
         --data '{"channel":"general", text":"Hello World!","attachments":[{"text":"More info","color":"#33ee33"}]}'
 
+> For more information on the Slack post message format, see https://api.slack.com/
+
 ### Using simple key-value format
+
+If you don't want to compose the JSON yourself, you can use a simpler, but slightly more limited, key-value format instead.
 
 Send a message to a channel:
 
@@ -52,14 +56,48 @@ Send a message to a channel:
         --data 'channel=general' \
         --data 'text=Hello%20World!'
 
-Send a message with attachments:
+Send a message as an attachment:
 
     curl http://localhost:8080/messages/text \
         --data 'channel=general' \
         --data 'text=Hello%20World!' \
+        --data 'title=Attachment' \
         --data 'attachment=true' \
         --data 'color=00ff00'
-        
+
+> The example above will send the text message as an attachment, with a particular colour and title.
+
+The available options for the key-value format are:
+
+| Key                     | Required                                 | Type    | Purpose                            |
+|-------------------------|------------------------------------------|---------|------------------------------------|
+| channel                 | Yes                                      | String  | Channel name                       |
+| text                    | Yes, unless additional message keys used | String  | Literal message text               |
+| attachment              | No                                       | Boolean | Whether to send in attachment mode |
+| title                   | No                                       | String  | Attachment title                   |
+| color                   | No                                       | String  | Attachment color                   |
+| author_name             | No                                       | String  | Attachment author name             |
+| title_link              | No                                       | String  | Attachment title link URL          |
+| footer                  | No                                       | String  | Attachment footer text             |
+| footer_icon             | No                                       | String  | Attachment footer icon URL         |
+| Additional message keys | No, unless `text` is empty               | String  | See below                          |
+
+#### Additional message keys
+
+When using the key-value format, any additional keys are appended to the text message. For example:
+
+    curl http://localhost:8080/messages/text \
+        --data 'channel=general' \
+        --data 'key_one=foo' \
+        --data 'key_two=bar' \
+        --data 'key_three=baz'
+
+This will result in message text such as the following:
+
+    key one: *foo* | key two: *bar* | key three: *baz*
+
+> Note that underscores in key names are replaced with spaces, and the values are emboldened.
+
 ## Creating a Slack app
 
 As a Slack admin, create a Slack app: https://api.slack.com/apps/new

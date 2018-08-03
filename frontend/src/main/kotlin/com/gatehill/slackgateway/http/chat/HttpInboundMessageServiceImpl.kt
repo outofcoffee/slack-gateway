@@ -121,27 +121,26 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
             throw HttpCodeException(400, "Unable to parse channel name")
         }
 
-        val color = routingContext.request().getParam("color") ?: "#000000"
-        val showAsAttachment = routingContext.request().getParam("attachment") == "true"
-
-        val requestParams = routingContext.request().params()
-            .filterNot { excludedParams.contains(it.key) }
-            .joinToString(" | ", transform = this::transformEntry)
-
-        val text = (routingContext.request().getParam("text") ?: "") + requestParams
-
         val message = mutableMapOf<String, Any>(
             "channel" to channelName
         )
 
+        val text = buildTextMessage(routingContext)
+        val showAsAttachment = routingContext.request().getParam("attachment") == "true"
+
         if (showAsAttachment) {
             val attachment = mutableMapOf(
-                "text" to text,
-                "color" to color.let { if (it.startsWith("#")) it else "#$it" }
+                "text" to text
             )
 
-            attachment += listOf(
+            routingContext.request().getParam("color")?.let { color ->
+                attachment += "color" to color.let { if (it.startsWith("#")) it else "#$it" }
+            }
+
+            attachment += arrayOf(
                 "author_name",
+                "footer",
+                "footer_icon",
                 "title",
                 "title_link"
             ).mapNotNull { key ->
@@ -157,6 +156,12 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
         outboundMessageService.forward(message)
         return "Posted plain message"
     }
+
+    private fun buildTextMessage(routingContext: RoutingContext) =
+        (routingContext.request().getParam("text") ?: "") +
+                routingContext.request().params()
+                    .filterNot { excludedParams.contains(it.key) }
+                    .joinToString(" | ", transform = this::transformEntry)
 
     /**
      * Legacy endpoint to support old clients.
