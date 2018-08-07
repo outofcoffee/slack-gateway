@@ -1,7 +1,11 @@
 package com.gatehill.slackgateway.backend.slack.service
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackgateway.backend.slack.config.SlackSettings
+import com.gatehill.slackgateway.backend.slack.exception.SlackErrorResponseException
 import com.gatehill.slackgateway.backend.slack.model.ResponseWithStatus
+import com.gatehill.slackgateway.backend.slack.model.SlackErrorResponse
 import com.gatehill.slackgateway.util.jsonMapper
 import org.apache.http.NameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
@@ -97,14 +101,17 @@ class SlackApiService {
         jsonResponse: String,
         responseClass: Class<R>
     ): R {
-        val parsedResponse = jsonMapper.readValue(jsonResponse, responseClass)
+        val parsedResponse = try {
+            jsonMapper.readValue(jsonResponse, responseClass)
+        } catch (e: JsonProcessingException) {
+            // parsing may have failed if the response is an error response
+            val errorResponse = jsonMapper.readValue<SlackErrorResponse>(jsonResponse)
+            throw SlackErrorResponseException(errorResponse, jsonResponse)
+        }
+
         when (parsedResponse) {
-            is ResponseWithStatus -> if (!parsedResponse.ok) {
-                throw RuntimeException("Expected response 'ok' field to be true: $jsonResponse")
-            }
-            is Map<*, *> -> if (true != parsedResponse["ok"]) {
-                throw RuntimeException("Expected response 'ok' field to be true: $jsonResponse")
-            }
+            is ResponseWithStatus -> if (!parsedResponse.ok) throw SlackErrorResponseException(jsonResponse)
+            is Map<*, *> -> if (true != parsedResponse["ok"]) throw SlackErrorResponseException(jsonResponse)
             else -> logger.warn("Unable to check response for type: $responseClass - payload: $jsonResponse")
         }
         return parsedResponse

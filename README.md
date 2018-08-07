@@ -122,7 +122,7 @@ Install your app to your workspace. This will generate the token you need. You'l
 
 ---
 
-*Note on Slack Workspace apps*
+**Note on Slack Workspace apps**
 
 Slack supports the notion of a _Workspace app_, which are not tied to users.
 

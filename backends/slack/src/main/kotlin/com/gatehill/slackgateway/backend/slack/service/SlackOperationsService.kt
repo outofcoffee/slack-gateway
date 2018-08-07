@@ -1,6 +1,7 @@
 package com.gatehill.slackgateway.backend.slack.service
 
 import com.gatehill.slackgateway.backend.slack.config.SlackSettings
+import com.gatehill.slackgateway.backend.slack.exception.SlackErrorResponseException
 import com.gatehill.slackgateway.backend.slack.model.GroupsCreateResponse
 import com.gatehill.slackgateway.backend.slack.model.GroupsListResponse
 import com.gatehill.slackgateway.backend.slack.model.SlackGroup
@@ -75,13 +76,24 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
     internal fun createPrivateChannel(channelName: String): SlackGroup {
         logger.debug("Creating channel: $channelName")
 
-        val reply = slackApiService.invokeSlackCommand<GroupsCreateResponse>(
-            commandName = "groups.create",
-            params = mapOf(
-                "name" to channelName,
-                "validate" to "true"
+        val reply: GroupsCreateResponse = try {
+            slackApiService.invokeSlackCommand(
+                commandName = "groups.create",
+                params = mapOf(
+                    "name" to channelName,
+                    "validate" to "true"
+                )
             )
-        )
+        } catch (e: SlackErrorResponseException) {
+            // specifically handle case where group exists but bot cannot see it
+            if (e.errorResponse?.error == "name_taken") {
+                throw IllegalStateException(
+                    "Unable to create a private channel named '$channelName' as one already exists. This is usually because the Slack token you are using does not have permission to access an existing channel. Add permission to access the '$channelName' channel to this token and try again."
+                )
+            } else {
+                throw e
+            }
+        }
 
         logger.debug("Create channel response: $reply")
 

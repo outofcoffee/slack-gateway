@@ -55,21 +55,21 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
     }
 
     private fun configureRoutes(vertx: Vertx, router: Router) {
-        router.route().handler(BodyHandler.create())
-        router.get("/").handler { routingContext ->
-            routingContext.response().end(
-                """
-                <html>
-                    <h3>Slack Gateway</h3>
-                    <ul>
-                        <li>/messages/raw</li>
-                        <li>/messages/text</li>
-                    </ul>
-                </htm>
-            """.trimIndent()
-            )
-        }
+        router.route()
+            .handler(BodyHandler.create())
+            .failureHandler { routingContext ->
+                val response = routingContext.response().setStatusCode(500)
+                routingContext.failure()?.let { failure ->
+                    response.end(failure.message)
+                } ?: response.end("Unexpected error. Check logs for details.")
+            }
 
+        router.get("/").handler { routingContext ->
+            routingContext.response().end(buildHomePage())
+        }
+        router.get("/health").handler { routingContext ->
+            routingContext.response().setStatusCode(200).end("ok")
+        }
         router.post("/messages/raw").handler { routingContext ->
             handle(vertx, routingContext, this::handleRaw)
         }
@@ -184,6 +184,27 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
         server?.close()
         server = null
     }
+
+    private fun buildHomePage() = """
+<html>
+    <head>
+        <title>Slack Gateway</title>
+    </head>
+    <body>
+        <h1>Slack Gateway</h1>
+        <p>
+            Supported endpoints:
+        </p>
+        <ul>
+            <li>POST /messages/raw</li>
+            <li>POST /messages/text</li>
+        </ul>
+        <p>
+            See the project on <a href="https://github.com/outofcoffee/slack-gateway">GitHub</a>.
+        </p>
+    </body>
+</html>
+    """.trimIndent()
 
     companion object {
         private val excludedParams = arrayOf(
