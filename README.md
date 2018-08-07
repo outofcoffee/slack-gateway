@@ -130,6 +130,12 @@ If you want to use Slack Gateway as a Workspace app, create your app using this 
 
 When you come to set permissions scopes, replace `chat:write:bot` with `chat:write`
 
+Don't forget to invite your app to any existing private channels, using:
+
+    /invite @YourAppName
+
+> Slack doesn't permit apps to post to channels unless they have permissions.
+
 ---
 
 ## Build
