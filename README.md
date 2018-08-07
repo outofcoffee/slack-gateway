@@ -120,6 +120,18 @@ Install your app to your workspace. This will generate the token you need. You'l
 
     xoxp-123456789012-123456789012-123456789012-abcdef1234567890abcdef1234567890
 
+---
+
+*Note on Slack Workspace apps*
+
+Slack supports the notion of a _Workspace app_, which are not tied to users.
+
+If you want to use Slack Gateway as a Workspace app, create your app using this link: https://api.slack.com/apps/new_app_token
+
+When you come to set permissions scopes, replace `chat:write:bot` with `chat:write`
+
+---
+
 ## Build
 
 If instead you wish to build and run locally, you can run:
