@@ -45,10 +45,14 @@ class SlackOutboundMessageService
     }
 
     private fun checkParticipants(channel: SlackGroup) {
+        if (SlackSettings.inviteGroups.isEmpty() && SlackSettings.inviteMembers.isEmpty()) {
+            logger.debug("Skipping check for participants of channel: ${channel.name} (no participants are configured)")
+            return
+        }
+
         logger.debug("Checking participants of channel: ${channel.name}")
 
         val memberIds = mutableListOf<String>()
-
         SlackSettings.inviteGroups.forEach { userGroupName ->
             try {
                 slackOperationsService.fetchUserGroup(userGroupName)?.let { userGroup ->
