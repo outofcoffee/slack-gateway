@@ -69,7 +69,13 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
     internal fun listPrivateChannels(): List<SlackGroup> {
         logger.debug("Listing private channels")
 
-        val reply = slackApiService.invokeSlackCommand<GroupsListResponse>(commandName = "groups.list")
+        val reply = slackApiService.invokeSlackCommand<GroupsListResponse>(
+            commandName = "groups.list",
+            method = SlackApiService.HttpMethod.GET,
+            params = mapOf(
+                "limit" to 10000
+            )
+        )
         return reply.groups ?: emptyList()
     }
 
