@@ -8,3 +8,4 @@ classes
 gradle.properties
 target
 out/
+/.env
