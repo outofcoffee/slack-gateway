@@ -1,4 +1,6 @@
-# Slack Gateway: A tool to create a Slack channel, invite people and post a message in a single request. [![CircleCI](https://circleci.com/gh/outofcoffee/slack-gateway.svg?style=svg)](https://circleci.com/gh/outofcoffee/slack-gateway)
+# Slack Gateway: An HTTP gateway for posting to Slack [![CircleCI](https://circleci.com/gh/outofcoffee/slack-gateway.svg?style=svg)](https://circleci.com/gh/outofcoffee/slack-gateway)
+
+With a single HTTP request, you can post a message, creating the channel first if it doesn't exist and invite people and groups.
 
 ## What can it do?
 

@@ -22,7 +22,9 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class SlackOperationsService @Inject constructor(private val slackApiService: SlackApiService) {
+class SlackOperationsService @Inject constructor(
+    private val slackApiService: SlackApiService
+) {
     private val logger: Logger = LogManager.getLogger(SlackOperationsService::class.java)
 
     private val cache = CacheBuilder.newBuilder()
@@ -51,7 +53,7 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
     private fun fetchUsers(): List<SlackUser> {
         logger.debug("Fetching all users")
 
-        val reply = slackApiService.invokeSlackCommand<UsersListResponse>(commandName = "users.list")
+        val reply = slackApiService.invokePaginatedSlackCommand<SlackUser, UsersListResponse>(commandName = "users.list")
         return reply.members
     }
 
@@ -69,7 +71,7 @@ class SlackOperationsService @Inject constructor(private val slackApiService: Sl
     internal fun listPrivateChannels(): List<SlackGroup> {
         logger.debug("Listing private channels")
 
-        val reply = slackApiService.invokeSlackCommand<GroupsListResponse>(commandName = "groups.list")
+        val reply = slackApiService.invokePaginatedSlackCommand<SlackGroup, GroupsListResponse>(commandName = "groups.list")
         return reply.groups ?: emptyList()
     }
 

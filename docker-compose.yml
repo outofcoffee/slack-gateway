@@ -6,6 +6,9 @@ services:
     build: ./distro
     ports:
       - "8080:8080"
+      # Java debug port
+      - "8000:8000"
     environment:
-      SLACK_USER_TOKEN: "CHANGEME"
-      SLACK_CHANNEL_MEMBERS: "jsmith,mjones"
+      - SLACK_USER_TOKEN
+      - SLACK_CHANNEL_MEMBERS
+      - JAVA_OPTS

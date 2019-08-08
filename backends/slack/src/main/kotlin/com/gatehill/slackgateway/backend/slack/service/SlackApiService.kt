@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.gatehill.slackgateway.backend.slack.config.SlackSettings
 import com.gatehill.slackgateway.backend.slack.exception.SlackErrorResponseException
+import com.gatehill.slackgateway.backend.slack.model.PaginatedResponse
 import com.gatehill.slackgateway.backend.slack.model.ResponseWithStatus
 import com.gatehill.slackgateway.backend.slack.model.SlackErrorResponse
 import com.gatehill.slackgateway.util.jsonMapper
@@ -97,6 +98,47 @@ class SlackApiService {
         }
     }
 
+    inline fun <reified T, reified R : PaginatedResponse<T>> invokePaginatedSlackCommand(
+        commandName: String,
+        params: Map<String, *> = emptyMap<String, Any>(),
+        method: HttpMethod = HttpMethod.POST,
+        bodyMode: BodyMode = BodyMode.FORM
+    ) = invokePaginatedSlackCommand(commandName, params, R::class.java, method, bodyMode)
+
+    fun <T, R : PaginatedResponse<T>> invokePaginatedSlackCommand(
+        commandName: String,
+        params: Map<String, *>,
+        responseClass: Class<R>,
+        method: HttpMethod,
+        bodyMode: BodyMode
+    ): R {
+        var fetchIteration = 0
+        var firstResponse: R? = null
+        var lastResponse: R? = null
+        do {
+            logger.debug("Invoking paged Slack API: $commandName [page ${++fetchIteration}]")
+
+            val combinedParams = params.toMutableMap()
+            lastResponse?.responseMetadata?.nextCursor?.let { combinedParams["cursor"] = it }
+
+            lastResponse = invokeSlackCommand(
+                commandName,
+                combinedParams,
+                responseClass,
+                method,
+                bodyMode
+            )
+
+            if (null == firstResponse) {
+                firstResponse = lastResponse
+            } else {
+                firstResponse.innerResults += lastResponse.innerResults
+            }
+        } while (!lastResponse?.responseMetadata?.nextCursor.isNullOrEmpty())
+
+        return firstResponse!!
+    }
+
     private fun <R> parseResponse(
         jsonResponse: String,
         responseClass: Class<R>
@@ -106,7 +148,7 @@ class SlackApiService {
         } catch (e: JsonProcessingException) {
             // parsing may have failed if the response is an error response
             val errorResponse = jsonMapper.readValue<SlackErrorResponse>(jsonResponse)
-            throw SlackErrorResponseException(errorResponse, jsonResponse)
+            throw SlackErrorResponseException(errorResponse, jsonResponse, e)
         }
 
         when (parsedResponse) {
