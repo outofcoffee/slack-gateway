@@ -3,10 +3,7 @@ package com.gatehill.slackgateway.backend.slack.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class GroupsCreateResponse(
+data class ChannelsCreateResponse(
     override val ok: Boolean,
-    val group: SlackGroup
-) : ResponseWithStatus, SlackChannelsCreateResponse {
-    override val channel
-        get() = group
-}
+    override val channel: SlackPublicChannel
+) : ResponseWithStatus, SlackChannelsCreateResponse

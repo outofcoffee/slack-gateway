@@ -100,37 +100,51 @@ This will result in message text such as the following:
 
 > Note that underscores in key names are replaced with spaces, and the values are emboldened.
 
+### Setting the channel type
+
+You can specify the channel type as public or private. This will be used when creating channels, or posting messages.
+
+Set the `channel_type` query parameter in the HTTP request, or use the `DEFAULT_CHANNEL_TYPE` environment variable.
+
+Valid values:
+
+* private
+* public
+
+Example using the query parameter:
+
+    curl http://localhost:8080/messages/text \
+       --data 'channel=some-private-channel' \
+       --data 'text=Hello%20world' \
+       --data 'channel_type=private'
+
 ## Creating a Slack app
 
 As a Slack admin, create a Slack app: https://api.slack.com/apps/new
 
-Add the required scopes:
+Add a bot user in the 'Bot Users' section:
+
+    https://api.slack.com/apps/<your app ID>/bots
+
+Add the required scopes in the 'OAuth & Permissions' section:
 
     https://api.slack.com/apps/<your app ID>/oauth
 
 The scopes are:
 
-    users:read
-    usergroups:read
+    chat:write:bot
+    channels:read
+    channels:write
     groups:read
     groups:write
-    chat:write:bot
-    
+    users:read
+    usergroups:read
+
 > Don't forget to save changes after adding scopes.
 
 Install your app to your workspace. This will generate the token you need. You'll want to copy the 'OAuth Access Token'. It should look like this:
 
     xoxp-123456789012-123456789012-123456789012-abcdef1234567890abcdef1234567890
-
----
-
-**Note on Slack Workspace apps**
-
-Slack supports the notion of a _Workspace app_, which are not tied to users.
-
-If you want to use Slack Gateway as a Workspace app, create your app using this link: https://api.slack.com/apps/new_app_token
-
-When you come to set permissions scopes, replace `chat:write:bot` with `chat:write`
 
 Don't forget to invite your app to any existing private channels, using:
 
@@ -170,6 +184,7 @@ Configure the bot using the following environment variables.
 - HTTP_BIND_PORT (default 8080)
 - HTTP_BIND_HOST (default 0.0.0.0)
 - SLACK_CACHE_SECONDS - period to cache Slack objects like users and user groups (default 300)
+- DEFAULT_CHANNEL_TYPE (default 'private') - the default channel type if none is specified in the request
 
 ## Contributing
 

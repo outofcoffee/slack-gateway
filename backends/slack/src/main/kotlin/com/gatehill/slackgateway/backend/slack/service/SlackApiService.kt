@@ -72,7 +72,7 @@ class SlackApiService {
                         HttpPost(uriBuilder.build()).apply {
                             when (bodyMode) {
                                 BodyMode.FORM -> this.entity =
-                                        UrlEncodedFormEntity(buildNameValuePairs(params), "UTF-8")
+                                    UrlEncodedFormEntity(buildNameValuePairs(params), "UTF-8")
 
                                 BodyMode.JSON -> {
                                     this.addHeader("Authorization", "Bearer ${SlackSettings.slackUserToken}")

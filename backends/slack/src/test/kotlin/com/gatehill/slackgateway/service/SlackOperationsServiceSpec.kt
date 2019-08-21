@@ -1,5 +1,8 @@
+package com.gatehill.slackgateway.service
+
 import com.gatehill.slackgateway.backend.slack.service.SlackApiService
 import com.gatehill.slackgateway.backend.slack.service.SlackOperationsService
+import com.gatehill.slackgateway.model.ChannelType
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should not be empty`
 import org.amshove.kluent.`should not be null`
@@ -43,7 +46,7 @@ object SlackOperationsServiceSpec : Spek({
         }
 
         on("listing private channels") {
-            val channels = service.listPrivateChannels()
+            val channels = service.listChannels(ChannelType.PRIVATE)
 
             it("returns channels") {
                 channels.`should not be empty`()

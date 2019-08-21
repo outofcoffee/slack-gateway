@@ -1,8 +1,10 @@
 package com.gatehill.slackgateway.http.chat
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.gatehill.slackgateway.config.Settings
 import com.gatehill.slackgateway.exception.HttpCodeException
 import com.gatehill.slackgateway.http.config.ChatSettings
+import com.gatehill.slackgateway.model.ChannelType
 import com.gatehill.slackgateway.service.InboundMessageService
 import com.gatehill.slackgateway.service.OutboundMessageService
 import com.gatehill.slackgateway.util.jsonMapper
@@ -25,8 +27,9 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-open class HttpInboundMessageServiceImpl @Inject constructor(private val outboundMessageService: OutboundMessageService) :
-    InboundMessageService {
+open class HttpInboundMessageServiceImpl @Inject constructor(
+    private val outboundMessageService: OutboundMessageService
+) : InboundMessageService {
 
     private val logger: Logger = LogManager.getLogger(HttpInboundMessageServiceImpl::class.java)
     private var server: HttpServer? = null
@@ -110,7 +113,7 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
     }
 
     private fun handleRaw(routingContext: RoutingContext): String {
-        outboundMessageService.forward(routingContext.bodyAsString)
+        outboundMessageService.forward(routingContext.bodyAsString, determineChannelType(routingContext))
         return "Posted raw message"
     }
 
@@ -153,9 +156,15 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
             message += "text" to text
         }
 
-        outboundMessageService.forward(message)
+        outboundMessageService.forward(message, determineChannelType(routingContext))
         return "Posted plain message"
     }
+
+    private fun determineChannelType(
+        routingContext: RoutingContext
+    ): ChannelType = routingContext.request().getParam("channel_type")
+        ?.let { ChannelType.parse(it) }
+        ?: Settings.defaultChannelType
 
     private fun buildTextMessage(routingContext: RoutingContext) =
         (routingContext.request().getParam("text") ?: "") +
@@ -168,12 +177,12 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
      */
     private fun handleLegacy(routingContext: RoutingContext): String {
         val channelName = routingContext.request().getParam("channel")
-                ?: throw HttpCodeException(400, "No channel in request")
+            ?: throw HttpCodeException(400, "No channel in request")
 
         val message = jsonMapper.readValue<Map<String, *>>(routingContext.bodyAsString).toMutableMap()
         message += "channel" to channelName
 
-        outboundMessageService.forward(message)
+        outboundMessageService.forward(message, determineChannelType(routingContext))
         return "Posted legacy message"
     }
 
@@ -211,6 +220,7 @@ open class HttpInboundMessageServiceImpl @Inject constructor(private val outboun
             "attachment",
             "author_name",
             "channel",
+            "channel_type",
             "color",
             "text",
             "title",
