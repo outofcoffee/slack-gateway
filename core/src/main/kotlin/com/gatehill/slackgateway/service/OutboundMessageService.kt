@@ -8,6 +8,6 @@ import com.gatehill.slackgateway.model.ChannelType
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 interface OutboundMessageService {
-    fun forward(raw: String, channelType: ChannelType)
-    fun forward(message: Map<String, *>, channelType: ChannelType)
+    fun forward(raw: String, channelType: ChannelType?)
+    fun forward(message: Map<String, *>, channelType: ChannelType?)
 }

@@ -1,7 +1,6 @@
 package com.gatehill.slackgateway.http.chat
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.gatehill.slackgateway.config.Settings
 import com.gatehill.slackgateway.exception.HttpCodeException
 import com.gatehill.slackgateway.http.config.ChatSettings
 import com.gatehill.slackgateway.model.ChannelType
@@ -162,9 +161,7 @@ open class HttpInboundMessageServiceImpl @Inject constructor(
 
     private fun determineChannelType(
         routingContext: RoutingContext
-    ): ChannelType = routingContext.request().getParam("channel_type")
-        ?.let { ChannelType.parse(it) }
-        ?: Settings.defaultChannelType
+    ): ChannelType? = routingContext.request().getParam("channel_type")?.let { ChannelType.parse(it) }
 
     private fun buildTextMessage(routingContext: RoutingContext) =
         (routingContext.request().getParam("text") ?: "") +

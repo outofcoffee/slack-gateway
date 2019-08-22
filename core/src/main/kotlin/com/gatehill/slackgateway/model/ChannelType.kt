@@ -14,4 +14,8 @@ enum class ChannelType {
             .firstOrNull { it.name.equals(channelType, ignoreCase = true) }
             ?: throw IllegalStateException("Unsupported channel type: $channelType")
     }
+
+    override fun toString(): String {
+        return name.toLowerCase()
+    }
 }
