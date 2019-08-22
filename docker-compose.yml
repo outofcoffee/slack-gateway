@@ -11,5 +11,5 @@ services:
     environment:
       - SLACK_USER_TOKEN
       - SLACK_CHANNEL_MEMBERS
-      - DEFAULT_CHANNEL_TYPE
+      - DEFAULT_CREATE_CHANNEL_TYPE
       - JAVA_OPTS

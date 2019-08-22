@@ -104,7 +104,7 @@ This will result in message text such as the following:
 
 You can specify the channel type as public or private. This will be used when creating channels, or posting messages.
 
-Set the `channel_type` query parameter in the HTTP request, or use the `DEFAULT_CHANNEL_TYPE` environment variable.
+Set the `channel_type` query parameter in the HTTP request, or use the `DEFAULT_CREATE_CHANNEL_TYPE` environment variable.
 
 Valid values:
 
@@ -184,7 +184,7 @@ Configure the bot using the following environment variables.
 - HTTP_BIND_PORT (default 8080)
 - HTTP_BIND_HOST (default 0.0.0.0)
 - SLACK_CACHE_SECONDS - period to cache Slack objects like users and user groups (default 300)
-- DEFAULT_CHANNEL_TYPE (default 'private') - the default channel type if none is specified in the request
+- DEFAULT_CREATE_CHANNEL_TYPE (default 'private') - the default channel type to create if none is specified in the request
 
 ## Contributing
 

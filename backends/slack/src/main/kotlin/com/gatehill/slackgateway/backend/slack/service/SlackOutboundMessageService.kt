@@ -49,7 +49,7 @@ class SlackOutboundMessageService @Inject constructor(
 
         } ?: run {
             // create the channel
-            val createChannelType = channelType ?: Settings.defaultChannelType
+            val createChannelType = channelType ?: Settings.defaultCreateChannelType
             logger.debug("Channel $channelName ($createChannelType) does not exist - creating")
             slackOperationsService.createChannel(channelName, createChannelType)
         }

@@ -3,9 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.3.0] - 2019-08-22
 ### Added
 - Adds support for creating and posting to public channels.
+- Adds support for specifying the default channel type to create.
+
+### Changed
+- Private, then public channels are searched before attempting to create a channel.
 
 ## [0.2.0] - 2019-08-08
 ### Added

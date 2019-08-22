@@ -7,6 +7,6 @@ import com.gatehill.slackgateway.util.VersionUtil
 
 fun main(args: Array<String>) {
     println("Starting Slack Gateway [version ${VersionUtil.version}]")
-    println("Default channel type: ${Settings.defaultChannelType}")
+    println("Default channel type: ${Settings.defaultCreateChannelType}")
     Bootstrap.build(HttpModule(), SlackModule()).start()
 }
