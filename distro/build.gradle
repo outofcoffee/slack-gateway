@@ -32,7 +32,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
-mainClassName = 'com.gatehill.slackgateway.bot.MainKt'
+mainClassName = 'io.gatehill.slackgateway.bot.MainKt'
 
 task createStartScripts(type: CreateStartScripts) {
     applicationName = 'slackgateway'
