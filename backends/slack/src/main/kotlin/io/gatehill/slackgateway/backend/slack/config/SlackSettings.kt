@@ -6,6 +6,10 @@ import io.gatehill.slackgateway.config.EnvironmentSettings
  * Slack driver settings.
  */
 object SlackSettings : EnvironmentSettings() {
+    val slackBotToken: String? by lazy {
+        getenv("SLACK_BOT_TOKEN")
+    }
+
     val slackUserToken by lazy {
         getenv("SLACK_USER_TOKEN") ?: throw IllegalStateException("Slack user token missing")
     }

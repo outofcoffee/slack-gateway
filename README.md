@@ -142,9 +142,15 @@ The scopes are:
 
 > Don't forget to save changes after adding scopes.
 
-Install your app to your workspace. This will generate the token you need. You'll want to copy the 'OAuth Access Token'. It should look like this:
+Install your app to your workspace. This will generate two tokens.
+
+Copy the 'OAuth Access Token' and set it as the `SLACK_USER_TOKEN`. It should look like this:
 
     xoxp-123456789012-123456789012-123456789012-abcdef1234567890abcdef1234567890
+
+Copy the 'Bot User OAuth Access Token' and set it as the `SLACK_BOT_TOKEN`. It should look like this:
+
+    xoxb-123456789012-123456789012-abcdef1234567890abcdef1234567890
 
 Don't forget to invite your app to any existing private channels, using:
 
@@ -175,6 +181,7 @@ Configure the bot using the following environment variables.
 
 ### Basic variables
 
+- SLACK_BOT_TOKEN - required to post to channels not containing the user who created the user token
 - SLACK_USER_TOKEN - must have the right permission scopes (see 'Creating a Slack app' in this document)
 - SLACK_CHANNEL_MEMBERS - users to invite to channels e.g. "janesmith,bob" (comma separated; default empty)
 - SLACK_CHANNEL_GROUPS - user groups to invite to channels e.g. "devteam" (comma separated; default empty)

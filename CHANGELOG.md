@@ -3,9 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-### Added
-- ...
+## [0.4.1] - 2019-09-12
+### Changed
+- Now accepts both a bot token and user token to support a wider range of operations.
 
 ## [0.4.0] - 2019-08-22
 ### Changed

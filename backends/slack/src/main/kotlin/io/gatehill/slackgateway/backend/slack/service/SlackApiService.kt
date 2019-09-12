@@ -66,19 +66,19 @@ class SlackApiService {
 
                 val request = when (method) {
                     HttpMethod.GET -> {
-                        uriBuilder.addParameters(buildNameValuePairs(params))
+                        uriBuilder.addParameters(buildNameValuePairs(commandName, params))
                         HttpGet(uriBuilder.build())
                     }
                     HttpMethod.POST -> {
                         HttpPost(uriBuilder.build()).apply {
                             when (bodyMode) {
                                 BodyMode.FORM -> this.entity =
-                                    UrlEncodedFormEntity(buildNameValuePairs(params), "UTF-8")
+                                    UrlEncodedFormEntity(buildNameValuePairs(commandName, params), "UTF-8")
 
                                 BodyMode.JSON -> {
                                     this.addHeader(
                                         "Authorization",
-                                        "Bearer ${SlackSettings.slackUserToken}"
+                                        "Bearer ${determineToken(commandName)}"
                                     )
                                     this.entity = StringEntity(generateJsonBody(params), ContentType.APPLICATION_JSON)
                                 }
@@ -172,7 +172,7 @@ class SlackApiService {
         return parsedResponse
     }
 
-    private fun buildNameValuePairs(params: Map<String, Any?>): List<NameValuePair> {
+    private fun buildNameValuePairs(commandName: String, params: Map<String, Any?>): List<NameValuePair> {
         val payload = mutableListOf<NameValuePair>()
         for ((key, value) in params) {
             if (key != "token") {
@@ -181,10 +181,33 @@ class SlackApiService {
         }
         payload += BasicNameValuePair(
             "token",
-            SlackSettings.slackUserToken
+            determineToken(commandName)
         )
         return payload
     }
 
+    /**
+     * Determine the token to use, preferring the bot token, if set.
+     */
+    private fun determineToken(commandName: String) = when {
+        USER_TOKEN_ONLY.contains(commandName) -> SlackSettings.slackUserToken
+        else -> SlackSettings.slackBotToken ?: SlackSettings.slackUserToken
+    }
+
     private fun generateJsonBody(params: Map<String, *>) = jsonMapper.writeValueAsString(params)
+
+    private companion object {
+        /**
+         * API methods that require a user token with appropriate permissions,
+         * i.e. a bot token will not suffice.
+         */
+        val USER_TOKEN_ONLY = arrayOf(
+            "groups.create",
+            "channels.create",
+            "usergroups.list",
+            "usergroups.users.list",
+            "groups.invite",
+            "channels.invite"
+        )
+    }
 }
