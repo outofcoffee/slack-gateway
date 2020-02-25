@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.2] - 2020-02-25
+### Changed
+- Defaults missing array elements in Slack API responses to empty.
+
 ## [0.4.1] - 2019-09-12
 ### Changed
 - Now accepts both a bot token and user token to support a wider range of operations.

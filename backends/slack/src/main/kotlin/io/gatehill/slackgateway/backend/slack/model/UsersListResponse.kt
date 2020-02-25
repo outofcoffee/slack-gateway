@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class UsersListResponse(
     override val ok: Boolean,
 
-    val members: MutableList<SlackUser>,
+    val members: MutableList<SlackUser> = mutableListOf(),
 
     @JsonProperty("response_metadata")
     override val responseMetadata: ResponseMetadata?

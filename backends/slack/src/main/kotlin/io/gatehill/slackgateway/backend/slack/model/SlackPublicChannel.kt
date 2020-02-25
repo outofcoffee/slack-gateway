@@ -7,7 +7,7 @@ import io.gatehill.slackgateway.model.ChannelType
 data class SlackPublicChannel(
     override val id: String,
     override val name: String,
-    override val members: List<String>
+    override val members: List<String> = emptyList()
 ) : SlackChannel {
     override val channelType = ChannelType.PUBLIC
 }

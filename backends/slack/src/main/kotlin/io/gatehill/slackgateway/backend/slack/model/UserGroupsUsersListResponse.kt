@@ -9,5 +9,5 @@ data class UserGroupsUsersListResponse(
     /**
      * User IDs only.
      */
-    val users: List<String>
+    val users: List<String> = emptyList()
 ) : ResponseWithStatus
