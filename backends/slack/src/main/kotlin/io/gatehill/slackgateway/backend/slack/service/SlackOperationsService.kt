@@ -87,7 +87,7 @@ class SlackOperationsService @Inject constructor(
         logger.debug("Listing private channels")
         val reply =
             slackApiService.invokePaginatedSlackCommand<SlackGroup, GroupsListResponse>(
-                commandName = "groups.list"
+                commandName = "conversations.list"
             )
         return reply.groups ?: emptyList()
     }
@@ -96,7 +96,7 @@ class SlackOperationsService @Inject constructor(
         logger.debug("Listing public channels")
         val reply =
             slackApiService.invokePaginatedSlackCommand<SlackPublicChannel, ChannelsListResponse>(
-                commandName = "channels.list"
+                commandName = "conversations.list"
             )
         return reply.channels ?: emptyList()
     }
@@ -110,14 +110,14 @@ class SlackOperationsService @Inject constructor(
         val reply: SlackChannelsCreateResponse = try {
             when (channelType) {
                 ChannelType.PRIVATE -> slackApiService.invokeSlackCommand<GroupsCreateResponse>(
-                    commandName = "groups.create",
+                    commandName = "conversations.create",
                     params = mapOf(
                         "name" to channelName,
                         "validate" to "true"
                     )
                 )
                 ChannelType.PUBLIC -> slackApiService.invokeSlackCommand<ChannelsCreateResponse>(
-                    commandName = "channels.create",
+                    commandName = "conversations.create",
                     params = mapOf(
                         "name" to channelName,
                         "validate" to "true"
@@ -148,8 +148,8 @@ class SlackOperationsService @Inject constructor(
     ) {
         slackApiService.invokeSlackCommand<Map<String, Any>>(
             commandName = when (channelType) {
-                ChannelType.PRIVATE -> "groups.invite"
-                ChannelType.PUBLIC -> "channels.invite"
+                ChannelType.PRIVATE -> "conversations.invite"
+                ChannelType.PUBLIC -> "conversations.invite"
             },
             params = mapOf(
                 "channel" to channel.id,
