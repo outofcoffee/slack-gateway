@@ -202,12 +202,10 @@ class SlackApiService {
          * i.e. a bot token will not suffice.
          */
         val USER_TOKEN_ONLY = arrayOf(
-            "groups.create",
-            "channels.create",
+            "conversations.create",
             "usergroups.list",
             "usergroups.users.list",
-            "groups.invite",
-            "channels.invite"
+            "conversations.invite"
         )
     }
 }
