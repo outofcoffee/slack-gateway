@@ -3,7 +3,7 @@ set -e
 
 CURRENT_BRANCH="$( git branch --show-current )"
 
-if [[ "$CURRENT_BRANCH" == "develop" || "$CURRENT_BRANCH" == "master" || "$CURRENT_BRANCH" == "main" ]]; then
+if [[ "$CURRENT_BRANCH" == "develop" || "$CURRENT_BRANCH" == "main" ]]; then
   EFFECTIVE_BRANCH_NAME="$CURRENT_BRANCH"
 
 else
