@@ -1,5 +1,7 @@
 package io.gatehill.slackgateway.model
 
+import java.util.*
+
 /**
  * Represents the types of channel to which a message can be sent.
  *
@@ -16,6 +18,6 @@ enum class ChannelType {
     }
 
     override fun toString(): String {
-        return name.toLowerCase()
+        return name.lowercase(Locale.getDefault())
     }
 }

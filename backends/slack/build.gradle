@@ -2,9 +2,6 @@ buildscript {
     ext {
         version_apache_httpclient = '4.4'
     }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
-    }
 }
 
 apply plugin: 'kotlin'

@@ -1,10 +1,14 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.7.10' apply false
+}
+
 allprojects {
     version = '0.4.5-SNAPSHOT'
     group = 'io.gatehill.slackgateway'
 
     buildscript {
         ext {
-            version_kotlin = '1.1.51'
+            version_kotlin = '1.7.10'
             version_log4j = '2.19.0'
             version_jackson = '2.9.0'
             version_guava = '18.0'
@@ -28,10 +32,8 @@ allprojects {
         maven { url "https://jitpack.io" }
         maven { url 'http://dl.bintray.com/jetbrains/spek' }
     }
-
-    apply plugin: "maven-publish"
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.2.1"
+wrapper {
+    gradleVersion = '6.9.2'
 }
