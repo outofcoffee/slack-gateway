@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- ...
+
 ## [0.4.6] - 2022-10-27
 ### Changed
 - Bump version_kotlin from 1.7.10 to 1.7.20
