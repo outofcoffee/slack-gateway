@@ -3,7 +3,7 @@ package io.gatehill.slackgateway.service
 import io.gatehill.slackgateway.backend.slack.service.SlackApiService
 import io.gatehill.slackgateway.backend.slack.service.SlackOperationsService
 import io.gatehill.slackgateway.model.ChannelType
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be empty`
 import org.amshove.kluent.`should not be null`
 import org.jetbrains.spek.api.Spek
@@ -32,7 +32,7 @@ object SlackOperationsServiceSpec : Spek({
 
             it("returns a user group") {
                 userGroup.`should not be null`()
-                userGroup!!.handle `should equal` "botusers"
+                userGroup.handle `should be equal to` "botusers"
             }
         }
 

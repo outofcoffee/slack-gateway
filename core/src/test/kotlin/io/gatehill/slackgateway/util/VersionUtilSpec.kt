@@ -1,6 +1,6 @@
 import io.gatehill.slackgateway.util.VersionUtil
+import org.amshove.kluent.`should not be equal to`
 import org.amshove.kluent.`should not be null`
-import org.amshove.kluent.`should not equal`
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -18,7 +18,7 @@ object VersionUtilSpec : Spek({
                 version.`should not be null`()
             }
             it("should provide a valid version") {
-                version `should not equal` VersionUtil.UNSPECIFIED_VERSION
+                version `should not be equal to` VersionUtil.UNSPECIFIED_VERSION
             }
         }
     }
