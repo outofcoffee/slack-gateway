@@ -10,7 +10,7 @@ allprojects {
         ext {
             version_kotlin = '1.7.10'
             version_log4j = '2.19.0'
-            version_jackson = '2.9.0'
+            version_jackson = '2.13.4'
             version_guava = '18.0'
             version_guice = '4.1.0'
             version_tyrus = '1.8.3'
