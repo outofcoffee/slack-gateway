@@ -1,5 +1,5 @@
 allprojects {
-    version = '0.4.3-SNAPSHOT'
+    version = '0.4.3'
     group = 'io.gatehill.slackgateway'
 
     buildscript {

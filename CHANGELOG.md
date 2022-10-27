@@ -3,9 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-### Added
-- ...
+## [0.4.3] - 2022-10-27
+### Changed
+- Bump version_junit_platform_gradle to 1.2.0
+- Bump version_log4j to 2.19.0
 
 ## [0.4.2] - 2020-02-25
 ### Changed
