@@ -17,7 +17,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - build: bumps JRE to 8u345.
 - build: bumps Kluent to 1.64.
 - build: bumps Gradle to 6.9.2. build: bumps Kotlin to 1.7.10.
-- build: next development version.
 
 ## [0.4.4] - 2022-10-27
 ### Changed
