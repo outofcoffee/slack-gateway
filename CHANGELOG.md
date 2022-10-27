@@ -3,9 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.4.6] - 2022-10-27
 ### Changed
-- ...
+- Bump version_kotlin from 1.7.10 to 1.7.20
+- Bump version_jackson from 2.9.0 to 2.13.4
 
 ## [0.4.5] - 2022-10-27
 ### Changed
