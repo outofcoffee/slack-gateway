@@ -8,7 +8,7 @@ if [[ "$CURRENT_BRANCH" == "develop" || "$CURRENT_BRANCH" == "master" || "$CURRE
 
 else
   case "$( git describe --tags --exact-match 2>/dev/null )" in
-  v1.*)
+  v0.*|v1.*)
     EFFECTIVE_BRANCH_NAME="main"
     ;;
   *)
