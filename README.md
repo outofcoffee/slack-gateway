@@ -1,4 +1,4 @@
-# Slack Gateway: An HTTP gateway for posting to Slack [![CircleCI](https://circleci.com/gh/outofcoffee/slack-gateway.svg?style=svg)](https://circleci.com/gh/outofcoffee/slack-gateway)
+# Slack Gateway: An HTTP gateway for posting to Slack [![CI](https://github.com/outofcoffee/slack-gateway/actions/workflows/ci.yaml/badge.svg)](https://github.com/outofcoffee/slack-gateway/actions/workflows/ci.yaml)
 
 With a single HTTP request, you can post a message, creating the channel first if it doesn't exist and invite people and groups.
 
