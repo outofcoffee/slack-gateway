@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.4] - 2022-10-27
+### Changed
+- fix: release trigger on version match.
+
 ## [0.4.3] - 2022-10-27
 ### Changed
 - Bump version_junit_platform_gradle to 1.2.0
