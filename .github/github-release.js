@@ -55,7 +55,7 @@ async function createRelease(releaseVersion, github) {
         owner: 'outofcoffee',
         repo: 'slack-gateway',
         tag_name: releaseVersion,
-        body: 'See Docker images on [Docker Hub](https://hub.docker.com/r/outofcoffee/slack-gateway).\n\nSee [change log](https://github.com/outofcoffee/slack-gateway/blob/main/CHANGELOG.md).',
+        body: 'See Docker images on [Docker Hub](https://hub.docker.com/r/outofcoffee/slack-gateway).\n\nSee [change log](https://github.com/outofcoffee/slack-gateway/blob/master/CHANGELOG.md).',
     });
     return release.data.id;
 }
