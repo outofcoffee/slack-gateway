@@ -13,7 +13,7 @@ allprojects {
             version_jackson = '2.13.4'
             version_guava = '18.0'
             version_guice = '4.1.0'
-            version_tyrus = '1.8.3'
+            version_tyrus = '2.1.2'
 
             // testing
             version_junit_platform_gradle = '1.2.0'
