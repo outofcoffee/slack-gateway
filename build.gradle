@@ -18,7 +18,7 @@ allprojects {
             // testing
             version_junit_platform_gradle = '1.2.0'
             version_spek = '1.2.1'
-            version_kluent = '1.64'
+            version_kluent = '1.73'
             version_mockito_kotlin = '1.6.0'
         }
         repositories {
