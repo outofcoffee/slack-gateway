@@ -3,9 +3,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.4.7] - 2023-05-13
 ### Changed
-- ...
+- refactor: makes compatible with Vert.x 4.
+- build(deps): bump io.vertx:vertx-web from 3.4.2 to 4.4.0
+- build(deps): bump org.amshove.kluent:kluent from 1.64 to 1.73
+  build(deps): bump org.glassfish.tyrus.bundles:tyrus-standalone-client from 1.8.3 to 2.1.3 #20
+- build(deps): bump version_spek from 1.1.5 to 1.2.1 #13
+- build(deps): bump version_spek from 1.1.5 to 1.2.1
+- build(deps): bump mockito-kotlin-kt1.1 from 1.5.0 to 1.6.0 #10
 
 ## [0.4.6] - 2022-10-27
 ### Changed
