@@ -1,15 +1,15 @@
 apply plugin: 'kotlin'
 
 dependencies {
-    compile "org.amshove.kluent:kluent:$version_kluent"
-    compile "org.jetbrains.spek:spek-api:$version_spek"
-    compile "org.jetbrains.spek:spek-junit-platform-engine:$version_spek"
-    compile "org.junit.platform:junit-platform-launcher:$version_junit_platform_gradle"
-    compile "com.nhaarman:mockito-kotlin-kt1.1:$version_mockito_kotlin"
+    api "org.amshove.kluent:kluent:$version_kluent"
+    api "org.spekframework.spek2:spek-dsl-jvm:$version_spek"
+    api "org.spekframework.spek2:spek-runner-junit5:$version_spek"
+    api "org.junit.platform:junit-platform-launcher:$version_junit_platform_gradle"
+    api "com.nhaarman:mockito-kotlin-kt1.1:$version_mockito_kotlin"
 
     // basic logging
-    compile "org.apache.logging.log4j:log4j-slf4j-impl:$version_log4j"
-    compile "org.apache.logging.log4j:log4j-core:$version_log4j"
+    api "org.apache.logging.log4j:log4j-slf4j-impl:$version_log4j"
+    api "org.apache.logging.log4j:log4j-core:$version_log4j"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

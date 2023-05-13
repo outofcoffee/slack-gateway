@@ -16,7 +16,7 @@ allprojects {
 
             // testing
             version_junit_platform_gradle = '1.2.0'
-            version_spek = '1.2.1'
+            version_spek = '2.0.19'
             version_kluent = '1.73'
             version_mockito_kotlin = '1.6.0'
         }
@@ -29,7 +29,6 @@ allprojects {
         mavenCentral()
         jcenter()
         maven { url "https://jitpack.io" }
-        maven { url 'http://dl.bintray.com/jetbrains/spek' }
     }
 }
 

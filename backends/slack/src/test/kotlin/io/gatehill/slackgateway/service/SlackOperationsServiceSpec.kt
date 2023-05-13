@@ -6,20 +6,18 @@ import io.gatehill.slackgateway.model.ChannelType
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not be empty`
 import org.amshove.kluent.`should not be null`
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
 /**
  * Specification for `SlackOperationsService`.
  */
 object SlackOperationsServiceSpec : Spek({
-    given("a service") {
+    describe("a service") {
         val api = SlackApiService()
         val service = SlackOperationsService(api)
 
-        on("listing users") {
+        describe("listing users") {
             val users = service.users
 
             it("returns users") {
@@ -27,7 +25,7 @@ object SlackOperationsServiceSpec : Spek({
             }
         }
 
-        on("fetching a user group") {
+        describe("fetching a user group") {
             val userGroup = service.fetchUserGroup("botusers")
 
             it("returns a user group") {
@@ -36,7 +34,7 @@ object SlackOperationsServiceSpec : Spek({
             }
         }
 
-        on("listing user group users") {
+        describe("listing user group users") {
             val userGroup = service.fetchUserGroup("botusers")
             val userIds = service.listUserGroupUserIds(userGroup!!)
 
@@ -45,7 +43,7 @@ object SlackOperationsServiceSpec : Spek({
             }
         }
 
-        on("listing private channels") {
+        describe("listing private channels") {
             val channels = service.listChannels(ChannelType.PRIVATE)
 
             it("returns channels") {
