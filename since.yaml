@@ -1,3 +1,5 @@
+requireBranch: main
+
 before:
 - script: |
     echo "version=${SINCE_NEW_VERSION}" > gradle.properties
