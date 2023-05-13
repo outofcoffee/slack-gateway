@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.9] - 2023-05-13
+### Changed
+- build: adds since configuration.
+- build: moves version to properties file.
+- build: removes deprecated Maven repo.
+- docs: updates examples.
+- test: upgrades to Spek 2.
+
 ## [0.4.8] - 2023-05-13
 ### Changed
 - ci: adds Java 11 build.
