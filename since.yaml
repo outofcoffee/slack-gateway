@@ -1,0 +1,4 @@
+before:
+- script: |
+    echo "version=${SINCE_NEW_VERSION}" > gradle.properties
+    git add gradle.properties
