@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.8] - 2023-05-13
+### Changed
+- ci: adds Java 11 build.
+
 ## [0.4.7] - 2023-05-13
 ### Changed
 - refactor: makes compatible with Vert.x 4.
