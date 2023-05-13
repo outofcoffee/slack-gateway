@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    version = '0.4.7-SNAPSHOT'
+    version = '0.4.7'
     group = 'io.gatehill.slackgateway'
 
     buildscript {
