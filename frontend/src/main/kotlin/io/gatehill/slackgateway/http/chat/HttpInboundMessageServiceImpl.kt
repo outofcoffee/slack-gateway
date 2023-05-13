@@ -9,8 +9,8 @@ import io.gatehill.slackgateway.service.OutboundMessageService
 import io.gatehill.slackgateway.util.jsonMapper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.AsyncResult
-import io.vertx.core.Future
 import io.vertx.core.Handler
+import io.vertx.core.Promise
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpServerOptions
@@ -27,7 +27,7 @@ import javax.inject.Inject
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 open class HttpInboundMessageServiceImpl @Inject constructor(
-    private val outboundMessageService: OutboundMessageService
+    private val outboundMessageService: OutboundMessageService,
 ) : InboundMessageService {
 
     private val logger: Logger = LogManager.getLogger(HttpInboundMessageServiceImpl::class.java)
@@ -36,20 +36,18 @@ open class HttpInboundMessageServiceImpl @Inject constructor(
     override fun listenForEvents() {
         Vertx.vertx().apply {
             deployVerticle(object : AbstractVerticle() {
-                override fun start(startFuture: Future<Void>) {
+                override fun start(startPromise: Promise<Void>) {
                     try {
                         val router = Router.router(vertx).apply { configureRoutes(vertx, this) }
 
                         logger.debug("Listening on ${ChatSettings.hostname}:${ChatSettings.port}")
-                        server = vertx.createHttpServer(
-                            HttpServerOptions().setPort(ChatSettings.port).setHost(ChatSettings.hostname)
-                        )
-                            .requestHandler(router::accept)
-                            .listen({ listenResult ->
-                                if (listenResult.succeeded()) startFuture.complete() else startFuture.fail(listenResult.cause())
-                            })
+                        val serverOptions = HttpServerOptions().setPort(ChatSettings.port).setHost(ChatSettings.hostname)
+
+                        server = vertx.createHttpServer(serverOptions).requestHandler(router::handle).listen { listenResult ->
+                            if (listenResult.succeeded()) startPromise.complete() else startPromise.fail(listenResult.cause())
+                        }
                     } catch (e: Exception) {
-                        startFuture.fail(e)
+                        startPromise.fail(e)
                     }
                 }
             })
@@ -85,7 +83,7 @@ open class HttpInboundMessageServiceImpl @Inject constructor(
 
     private fun handle(vertx: Vertx, routingContext: RoutingContext, processor: (RoutingContext) -> String) {
         vertx.executeBlocking(
-            Handler<Future<String>> {
+            Handler<Promise<String>> {
                 try {
                     it.complete(processor(routingContext))
                 } catch (e: Exception) {
@@ -112,7 +110,7 @@ open class HttpInboundMessageServiceImpl @Inject constructor(
     }
 
     private fun handleRaw(routingContext: RoutingContext): String {
-        outboundMessageService.forward(routingContext.bodyAsString, determineChannelType(routingContext))
+        outboundMessageService.forward(routingContext.body().asString(), determineChannelType(routingContext))
         return "Posted raw message"
     }
 
@@ -160,14 +158,14 @@ open class HttpInboundMessageServiceImpl @Inject constructor(
     }
 
     private fun determineChannelType(
-        routingContext: RoutingContext
+        routingContext: RoutingContext,
     ): ChannelType? = routingContext.request().getParam("channel_type")?.let { ChannelType.parse(it) }
 
     private fun buildTextMessage(routingContext: RoutingContext) =
         (routingContext.request().getParam("text") ?: "") +
-                routingContext.request().params()
-                    .filterNot { excludedParams.contains(it.key) }
-                    .joinToString(" | ", transform = this::transformEntry)
+            routingContext.request().params()
+                .filterNot { excludedParams.contains(it.key) }
+                .joinToString(" | ", transform = this::transformEntry)
 
     /**
      * Legacy endpoint to support old clients.
@@ -176,7 +174,7 @@ open class HttpInboundMessageServiceImpl @Inject constructor(
         val channelName = routingContext.request().getParam("channel")
             ?: throw HttpCodeException(400, "No channel in request")
 
-        val message = jsonMapper.readValue<Map<String, *>>(routingContext.bodyAsString).toMutableMap()
+        val message = jsonMapper.readValue<Map<String, *>>(routingContext.body().asString()).toMutableMap()
         message += "channel" to channelName
 
         outboundMessageService.forward(message, determineChannelType(routingContext))
