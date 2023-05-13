@@ -12,13 +12,42 @@ Runs as a server, listening for an HTTP request. Upon receipt of a message, the 
 
 This removes the complexity of orchestrating many Slack API calls behind a simple endpoint.
 
-## Instructions
+## Examples
+
+### Using Slack format
+
+Send a message to a channel:
+
+    curl http://localhost:8080/messages/raw \
+        --header "Content-Type: application/json" \
+        --data '{"channel":"general", text":"Hello World!"}'
+        
+Send a message with attachments:
+
+    curl http://localhost:8080/messages/raw \
+        --header "Content-Type: application/json" \
+        --data '{"channel":"general", text":"Hello World!","attachments":[{"text":"More info","color":"#33ee33"}]}'
+
+### Using simple key-value format
+
+If you don't want to compose the JSON yourself, you can use a simpler, but slightly more limited, key-value format instead.
+
+Send a message to a channel:
+
+    curl http://localhost:8080/messages/text \
+        --data 'channel=general' \
+        --data 'text=Hello%20World!'
+---
+
+## Getting started
+
+### Overview
 
 * As a Slack admin, create a Slack app, add the required scopes (see below) and install it to your workspace
 * Set environment variables
 * Run!
 
-## Getting started
+### Starting the server
 
 If you'd like to run Slack Gateway yourself as a Docker container, you can do the following:
 
@@ -30,7 +59,9 @@ If you'd like to run Slack Gateway yourself as a Docker container, you can do th
 
 > Note: See the _Environment variables_ section for the available configuration settings.
 
-## Example usage
+## Usage
+
+You can send messages to Slack Gateway using either the Slack format, or a simpler key-value format.
 
 ### Using Slack format
 
