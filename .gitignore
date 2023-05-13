@@ -5,7 +5,6 @@ build/
 .gradle/
 classes
 .gradletasknamecache
-gradle.properties
 target
 out/
 /.env
